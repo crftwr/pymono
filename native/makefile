@@ -20,6 +20,9 @@ CFLAGS = \
     -fno-exceptions \
     -fno-rtti \
     -I/c/python27/include \
+    -I"/c/Program Files (x86)/Mono-2.6.7/include/mono-1.0" \
+    -I/c/project/glib/include/glib-2.0 \
+    -I/c/project/glib/lib/glib-2.0/include \
     -DWINVER=0x0500 \
     -D_WIN32_WINNT=0x0500 \
     -D_UNICODE=1 \
@@ -28,7 +31,9 @@ CFLAGS = \
 LIBS = \
     -L/usr/lib/mingw \
     -L/c/python27/libs \
+    -L"/c/Program Files (x86)/Mono-2.6.7/lib" \
     -lpython27 \
+    -lmono \
     -lcomdlg32 \
     -lole32 \
     -lnetapi32 \
