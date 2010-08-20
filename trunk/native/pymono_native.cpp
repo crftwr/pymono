@@ -50,20 +50,16 @@ static PyObject * Error;
 
 static MonoString*
 gimme () {
-	return mono_string_new (mono_domain_get (), "All your monos are belong to us!");
+	return mono_string_new (mono_domain_get (), "Hello InternalCall!");
 }
 
 static void main_function (MonoDomain *domain, const char *file, int argc, char** argv)
 {
 	MonoAssembly *assembly;
 
-	printf("main_function 1\n");
-
 	assembly = mono_domain_assembly_open (domain, file);
 	if (!assembly)
 		exit (2);
-
-	printf("main_function 2\n");
 
 	/*
 	 * mono_jit_exec() will run the Main() method in the assembly.
@@ -71,14 +67,6 @@ static void main_function (MonoDomain *domain, const char *file, int argc, char*
 	 * System.Environment.ExitCode.
 	 */
 	mono_jit_exec (domain, assembly, argc, argv);
-
-	printf("main_function 3\n");
-}
-
-
-int 
-main(int argc, char* argv[])
-{
 }
 
 static PyObject * _initMono( PyObject * self, PyObject * args )
@@ -86,8 +74,6 @@ static PyObject * _initMono( PyObject * self, PyObject * args )
 	if( ! PyArg_ParseTuple(args,"") )
 		return NULL;
 		
-	printf("initMono\n");
-
 	{
 		MonoDomain *domain;
 		const char *file;
@@ -112,8 +98,9 @@ static PyObject * _initMono( PyObject * self, PyObject * args )
 		 */
 		mono_add_internal_call ("MonoEmbed::gimme", (const void*)gimme);
 
-		char * argv[] = {};
-		main_function ( domain, file, 0, argv );
+		int argc = 1;
+		const char * argv[] = { file };
+		main_function ( domain, file, argc, const_cast<char**>(argv) );
 	
 		retval = mono_environment_exitcode_get ();
 	
