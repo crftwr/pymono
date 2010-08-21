@@ -1,4 +1,6 @@
-#import ctypes
+import sys
+
+sys.path.append("./dist")
 
 import pymono
 
