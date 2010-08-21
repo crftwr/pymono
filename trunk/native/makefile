@@ -48,7 +48,7 @@ clean:
 	rm -f $(OBJS) $(MDS) $(TARGET) *~
 
 install: $(TARGET)
-	@cp -upv pymono_native.pyd ..
+	@cp -upv pymono_native.pyd ../dist/pymono
 
 #-------------------------------------------------------------------
 
