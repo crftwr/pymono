@@ -7,6 +7,7 @@ class MonoEmbed {
 
 	static void Main()
 	{
-		Console.WriteLine (gimme ());
+		Console.WriteLine( "Hello from CSharp" );
+		Console.WriteLine(gimme ());
 	}
 }

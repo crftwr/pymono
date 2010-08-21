@@ -9,4 +9,4 @@ clean:
 	rm -f test.exe
 
 run:
-	/c/python27/python.exe -u pymono_main.py
+	/c/python27/python.exe -u test.py
