@@ -1,10 +1,17 @@
+import os
 import sys
+import subprocess
 
 sys.path.append("./dist")
 
+os.environ["PATH"] += r";c:\Program Files (x86)\Mono-2.6.7\bin"
+os.environ["MONO_PATH"] = r"c:\Program Files (x86)\Mono-2.6.7\lib\mono\2.0"
+
 import pymono
 
-pymono.initialize()
+subprocess.call( [ "gmcs.bat", "test.cs" ] )
+
+pymono.initialize( "test.exe" )
 
 #----------------------------------------------------------
 
