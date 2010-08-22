@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string>
 
 #include <python.h>
 
@@ -50,7 +51,7 @@ static PyObject * Error;
 // ----------------------------------------------------------------------------
 
 MonoDomain * domain;
-const char * file = "test.exe";
+std::string filename;
 
 static void main_function (MonoDomain *domain, const char *file, int argc, char** argv)
 {
@@ -70,8 +71,12 @@ static void main_function (MonoDomain *domain, const char *file, int argc, char*
 
 static PyObject * _initialize( PyObject * self, PyObject * args )
 {
-	if( ! PyArg_ParseTuple(args,"") )
+	const char * _filename;
+	
+	if( ! PyArg_ParseTuple(args,"s",&_filename) )
 		return NULL;
+
+	filename = _filename;
 		
 	{
 		/*
@@ -80,11 +85,12 @@ static PyObject * _initialize( PyObject * self, PyObject * args )
 		 * system configuration
 		 */
 		mono_config_parse (NULL);
+
 		/*
 		 * mono_jit_init() creates a domain: each assembly is
 		 * loaded and run in a MonoDomain.
 		 */
-		domain = mono_jit_init (file);
+		domain = mono_jit_init (filename.c_str());
 	}
 
 	Py_INCREF(Py_None);
@@ -110,8 +116,8 @@ static PyObject * _execute( PyObject * self, PyObject * args )
 		return NULL;
 		
 	int argc = 1;
-	const char * argv[] = { file };
-	main_function ( domain, file, argc, const_cast<char**>(argv) );
+	const char * argv[] = { filename.c_str() };
+	main_function ( domain, filename.c_str(), argc, const_cast<char**>(argv) );
 	int result = mono_environment_exitcode_get();
 
 	PyObject * pyret = Py_BuildValue( "i", result );
