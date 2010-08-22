@@ -5,6 +5,7 @@
 #include <mono/jit/jit.h>
 #include <mono/metadata/environment.h>
 #include <mono/metadata/mono-config.h>
+#include <mono/utils/mono-embed.h>
 
 
 //-----------------------------------------------------------------------------
@@ -48,10 +49,8 @@ static PyObject * Error;
 
 // ----------------------------------------------------------------------------
 
-static MonoString*
-gimme () {
-	return mono_string_new (mono_domain_get (), "Hello InternalCall!");
-}
+MonoDomain * domain;
+const char * file = "test.exe";
 
 static void main_function (MonoDomain *domain, const char *file, int argc, char** argv)
 {
@@ -69,18 +68,12 @@ static void main_function (MonoDomain *domain, const char *file, int argc, char*
 	mono_jit_exec (domain, assembly, argc, argv);
 }
 
-static PyObject * _initMono( PyObject * self, PyObject * args )
+static PyObject * _initialize( PyObject * self, PyObject * args )
 {
 	if( ! PyArg_ParseTuple(args,"") )
 		return NULL;
 		
 	{
-		MonoDomain *domain;
-		const char *file;
-		int retval;
-	
-		file = "test.exe";
-
 		/*
 		 * Load the default Mono configuration file, this is needed
 		 * if you are planning on using the dllmaps defined on the
@@ -92,32 +85,88 @@ static PyObject * _initMono( PyObject * self, PyObject * args )
 		 * loaded and run in a MonoDomain.
 		 */
 		domain = mono_jit_init (file);
-		/*
-		 * We add our special internal call, so that C# code
-		 * can call us back.
-		 */
-		mono_add_internal_call ("MonoEmbed::gimme", (const void*)gimme);
-
-		int argc = 1;
-		const char * argv[] = { file };
-		main_function ( domain, file, argc, const_cast<char**>(argv) );
-	
-		retval = mono_environment_exitcode_get ();
-	
-		mono_jit_cleanup(domain);
 	}
-
-
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
+static PyObject * _terminate( PyObject * self, PyObject * args )
+{
+	if( ! PyArg_ParseTuple(args,"") )
+		return NULL;
+		
+	{
+		mono_jit_cleanup(domain);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject * _execute( PyObject * self, PyObject * args )
+{
+	if( ! PyArg_ParseTuple(args,"") )
+		return NULL;
+		
+	int argc = 1;
+	const char * argv[] = { file };
+	main_function ( domain, file, argc, const_cast<char**>(argv) );
+	int result = mono_environment_exitcode_get();
+
+	PyObject * pyret = Py_BuildValue( "i", result );
+	return pyret;
+}
+
+static PyObject * _pyStringToMonoString( PyObject * self, PyObject * args )
+{
+	const char * str;
+	unsigned int len;
+
+	if( ! PyArg_ParseTuple( args, "s", &str, &len ) )
+		return NULL;
+		
+	MonoString * mono_string = mono_string_new_len(mono_domain_get(),str,len);	
+		
+	PyObject * pyret = Py_BuildValue( "i", mono_string );
+	return pyret;
+}
+
+static PyObject * _monoStringToPyString( PyObject * self, PyObject * args )
+{
+	int mono_string;
+
+	if( ! PyArg_ParseTuple( args, "i", &mono_string ) )
+		return NULL;
+		
+	char * utf8 = mono_string_to_utf8( (MonoString*)mono_string );
+		
+	PyObject * pyret = Py_BuildValue( "s", utf8 );
+
+	g_free(utf8);
+
+	return pyret;
+}
+
 static PyMethodDef pymono_native_funcs[] =
 {
-    { "initMono", _initMono, METH_VARARGS, "" },
+    { "initialize", _initialize, METH_VARARGS, "" },
+    { "terminate", _terminate, METH_VARARGS, "" },
+    { "execute", _execute, METH_VARARGS, "" },
+
+    { "pyStringToMonoString", _pyStringToMonoString, METH_VARARGS, "" },
+    { "monoStringToPyString", _monoStringToPyString, METH_VARARGS, "" },
+
     {NULL, NULL, 0, NULL}
 };
+
+// ----------------------------------------------------------------------------
+
+extern "C" int __stdcall registerInternalCall( const char * name, const void * func )
+{
+	mono_add_internal_call( name, (const void*)func );
+	return 0;
+}
 
 // ----------------------------------------------------------------------------
 

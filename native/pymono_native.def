@@ -1,3 +1,4 @@
 LIBRARY pymono_native.pyd
 EXPORTS
 initpymono_native@0
+registerInternalCall@8
