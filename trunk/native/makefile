@@ -34,6 +34,7 @@ LIBS = \
     -L"/c/Program Files (x86)/Mono-2.6.7/lib" \
     -lpython27 \
     -lmono \
+    /c/project/glib/lib/glib-2.0.lib \
     -lcomdlg32 \
     -lole32 \
     -lnetapi32 \
@@ -48,7 +49,7 @@ clean:
 	rm -f $(OBJS) $(MDS) $(TARGET) *~
 
 install: $(TARGET)
-	@cp -upv pymono_native.pyd ../dist/pymono
+	@cp -upv pymono_native.pyd ..
 
 #-------------------------------------------------------------------
 

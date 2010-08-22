@@ -8,5 +8,5 @@ test.exe: test.cs
 clean:
 	rm -f test.exe
 
-run:
+run: all
 	/c/python27/python.exe -u test.py
