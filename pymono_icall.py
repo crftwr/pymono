@@ -1,11 +1,11 @@
-import ctypes
+﻿import ctypes
 import pymono_native
 
 _pymono_native = ctypes.cdll.LoadLibrary("pymono_native.pyd")
 
 cfunc_table = {}
 
-def register( name, res_type, arg_type, func ):
+def register( name, res_type, arg_types, func ):
 
     ctypes_func_type = []
 
@@ -18,12 +18,12 @@ def register( name, res_type, arg_type, func ):
     else:
         raise ValueError("unknown format charactor :",res_type)
     
-    for a in arg_type:
-        if a=="i":
+    for arg_type in arg_types:
+        if arg_type=="i":
             ctypes_func_type.append( ctypes.c_int )
-        elif a=="f":
+        elif arg_type=="f":
             ctypes_func_type.append( ctypes.c_float )
-        elif a=="s":
+        elif arg_type=="s":
             ctypes_func_type.append( ctypes.c_void_p )
         else:
             raise ValueError("unknown format charactor :",a)
@@ -44,12 +44,16 @@ class PyMonoString:
         elif isinstance( src, str ):
             self.s = src
         else:
-            print type(src)
-            assert(False)    
+            raise TypeError( "PyMonoString cannot be created from" + type(src) )
         
     def toPyString(self):
         return self.s
 
     def toMonoString(self):
         return pymono_native.pyStringToMonoString(self.s)
-    
+
+# TODO:
+# 
+# - str じゃなくて unicode を使って、変換の回数を減らす
+# - もっといろんなタイプの引数をサポート ( 構造体、配列、signed/unsigned )
+#
