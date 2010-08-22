@@ -162,7 +162,7 @@ static PyMethodDef pymono_native_funcs[] =
 
 // ----------------------------------------------------------------------------
 
-extern "C" int __stdcall registerInternalCall( const char * name, const void * func )
+extern "C" int registerInternalCall( const char * name, const void * func )
 {
 	mono_add_internal_call( name, (const void*)func );
 	return 0;
