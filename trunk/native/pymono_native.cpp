@@ -123,7 +123,7 @@ static PyObject * _pyStringToMonoString( PyObject * self, PyObject * args )
 	const char * str;
 	unsigned int len;
 
-	if( ! PyArg_ParseTuple( args, "s", &str, &len ) )
+	if( ! PyArg_ParseTuple( args, "s#", &str, &len ) )
 		return NULL;
 		
 	MonoString * mono_string = mono_string_new_len(mono_domain_get(),str,len);	
