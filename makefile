@@ -6,6 +6,7 @@ DIST_FILES = \
 	pymono/src.zip \
 	pymono/sample/test.py \
 	pymono/sample/test.cs \
+	pymono/doc/index.txt \
 
 .PHONY: dist
 
@@ -21,6 +22,7 @@ dist:
 	cp pymono_native.pyd  dist/pymono/
 	cp test.py	      dist/pymono/sample/
 	cp test.cs	      dist/pymono/sample/
+	cp doc/index.txt      dist/pymono/doc/
 	cd dist/src && svn export --force ../../../pymono && zip -r ../pymono/src.zip pymono
 	cd dist && zip pymono.zip $(DIST_FILES)
 	@echo ""
